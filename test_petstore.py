@@ -13,3 +13,7 @@ def test_post_petstore():
     request_post = requests.post(url, json=request, verify=False)
     print("result = ", request_post.json())
 
+def test_get_pet():
+    url = "https://petstore.swagger.io/v2/pet/9223372036854775807"
+    request_get = requests.get(url, verify=False)
+    print("result =", request_get.json())
