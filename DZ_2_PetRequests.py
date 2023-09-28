@@ -156,7 +156,7 @@ def test_put_user():
 
     assert request_get.json()['username'] == request_put['username']
 
-
+# DELETE/user  Delete user
 def test_delete_user():
     url = "https://petstore.swagger.io/v2/user/denzel"
     request = {}
