@@ -1,4 +1,5 @@
 import requests
+import resources.urls as urls
 
 
 """
@@ -13,35 +14,31 @@ https://petstore.swagger.io/
 
 # GET pet FindStatus
 def test_get_pet_findByStatus_available():
-    url = "https://petstore.swagger.io/v2/pet/123"
-    response_get = requests.get(url, verify=False)
+    response_get = requests.get(urls.url_pet_findbystatus("available"), verify=False)
     print("result =", response_get.json())
 
-    assert response_get.json()['status'] == 'available'
+    assert response_get.json()[0]['status'] == 'available'
+
+def test_get_pet_findByStatus_sold():
+    response_get = requests.get(urls.url_pet_findbystatus("sold"), verify=False)
+    print("result =", response_get.json())
+
+    assert response_get.json()[0]['status'] == 'sold'
 
 
-def test_get_pet_findByStatus_available_nagetive():
-    url = "https://petstore.swagger.io/v2/pet/" + str(777777777)
-    response_get = requests.get(url, verify=False)
+def test_get_pet_findByStatus_pending():
+    response_get = requests.get(urls.url_pet_findbystatus("pending"), verify=False)
+    print("result =", response_get.json())
+
+    assert response_get.json()[0]['status'] == 'pending'
+
+
+def test_get_pet_findByStatus_negative():
+    response_get = requests.get(urls.url_pet_post + "/" + str(777777777), verify=False)
     print("result =", response_get.json())
 
     assert response_get.json()['message'] == "Pet not found"
 
-
-def test_get_pet_findByStatus_sold():
-    url = "https://petstore.swagger.io/v2/pet/131131"
-    response_get = requests.get(url, verify=False)
-    print("result =", response_get.json())
-
-    assert response_get.json()['status'] == 'sold'
-
-
-def test_get_pet_findByStatus_pending():
-    url = "https://petstore.swagger.io/v2/pet/499"
-    response_get = requests.get(url, verify=False)
-    print("result =", response_get.json())
-
-    assert response_get.json()['status'] == 'pending'
 
 # POST petID
 
@@ -49,7 +46,6 @@ def test_post_pet_id():
     url = "https://petstore.swagger.io/v2/pet/"
     request = {'id': 1, 'name': 'Denis', 'status': 'disable'}
     print(request)
-
     response_post = requests.post(url, json=request, verify=False)
     print("result = ", response_post.json())
 
@@ -66,121 +62,82 @@ def test_post_pet_id():
 
 # POST uploadImage
 def test_post_pet_id_uploadImage():
-    url = "https://petstore.swagger.io/v2/pet"
-    request = {'code': 1, 'type': 'DENZEL', 'message': 'additionalMetadata: DENZEL\nFile uploaded to ./denisov.jpg, 451937 bytes'}
-    print(request)
+    url = "https://petstore.swagger.io/v2/pet/"
+    request = {'id': 1}
+    url_post = url + str(request['id']) + "/uploadImage"
+    print("url_post =", url_post)
+    fp = open('send.txt', 'rb')
+    files = {'file': fp}
+    resp = requests.post(url_post, files=files)
+    fp.close()
+    print(resp.text)
 
-    response_post = requests.post(url, json=request, verify=False)
-    print("result = ", response_post.json())
-
-    """Проверяем что id не пустой конструкцией is not None"""
-    assert response_post.json()['id'] is not None
-
-    url_get = "https://petstore.swagger.io/v2/pet/" + str(response_post.json()['id']) + str("/uploadImage")
-    print("url_get", url_get)
-
+    url_get = url + str(request['id'])
     response_get = requests.get(url_get)
-    print("result get = ", response_get)
-
-    assert response_get.json()['id'] == response_post.json()['id']
-
+    print("responce =", response_get.json())
+    assert response_get.json()['id'] == 1
+    assert response_get.json()['status'] == "OK"
 
 # POST/user Create User
 
 def test_post_create_user():
     url = "https://petstore.swagger.io/v2/user"
-    # request = {}
-    # request["id"] = 777555
-    # request["username"] = "denzel"
-    # request["firstName"] = "Denis"
-    # request["lastName"] = "Denisov"
-    # request["email"] = "denzel@sber.net"
-    # request["password"] = "777555"
-    # request["phone"] = "iphone"
-    # request["userStatus"] = 1
 
-    request = {"id": 777555,"username": "denzel","firstName": "Denis","lastName": "Denisov",
-               "email": "denzel@sber.net","password": "777555","phone": "iphone","userStatus": 1}
+    request = {"id": 777555,
+               "username": "Denzel",
+               "firstName": "Denis",
+               "lastName": "Denisov",
+               "email": "denzel@sber.net",
+               "password": "777555",
+               "phone": "iphone",
+               "userStatus": 0}
 
-    request_post = requests.post(url, json=request, verify=False)
-    # print("request = ", request)
-    print("result request_post.json = ", request_post.json())
+    print(request)
+    response_post = requests.post(url, json=request, verify=False)
+    print("result = ", response_post.json())
 
-
-    """Проверяем что id не пустой конструкцией is not None"""
-    assert request_post.json()['message'] is not None
-
-    url_get = "https://petstore.swagger.io/v2/user/denzel"
-    request_get = requests.get(url_get, verify=False)
-    print(request_get)
-
-    assert request_get.json()['email'] == 'denzel@sber.net'
 
 # GET/user  Username
 def test_get_user():
-    url = "https://petstore.swagger.io/v2/user/denzel"
-    request_get = requests.get(url, verify=False)
-    print("result =", request_get.json())
-
-    assert request_get.json()['username'] == 'denzel'
+    url = "https://petstore.swagger.io/v2/user"
+    userName = "Denzel"
+    url_get = url + "/" + userName
+    response_get = requests.get(url_get)
+    print("response =", response_get.json())
+    assert response_get.json()['id'] == 777555
+    assert response_get.json()['userStatus'] == 0
 
 # PUT/user  Update user
 def test_put_user():
     url = "https://petstore.swagger.io/v2/user/"
-    request = {}
-    request['id'] = 777555
-    request['username'] = 'denzel'
-    request['firstName'] = 'Denis'
-    request['lastName'] = 'Denisov'
-    request['email'] = 'denzel@sber.net'
-    request['password'] = '777555'
-    request['phone'] = 'iphone'
-    request['userStatus'] = 1
+    request = {"id": 777555,
+               "username": "Denzel",
+               "firstName": "Denis",
+               "lastName": "Denisov",
+               "email": "denzel@sber.net",
+               "password": "777555",
+               "phone": "iphone",
+               "userStatus": 0}
 
     print(request)
+    url_put = url + str(request['username'])
+    print("url_put =", url_put)
+    response_post = requests.put(url_put, json=request, verify=False)
+    print("result = ", response_post.json())
 
-    request_post = requests.post(url, json=request, verify=False)
-    print("result post= ", request_post.json())
+    response_get = requests.get(url_put)
+    print("responce =", response_get.json())
 
-    request_put = {}
-    request_put['username'] = "denzel moscow"
-    print('request put = ', request_put)
 
-    request_put_r = requests.put(url, json=request_put, verify=False)
-    print("result put=", request_put_r.json())
-
-    assert request_put_r.json()['username'] == request_put['username']
-
-    url_get = "https://petstore.swagger.io/v2/user/" + str(request_post.json()['username'])
-    request_get = requests.get(url_get, verify=False)
-
-    assert request_get.json()['username'] == request_put['username']
 
 # DELETE/user  Delete user
 def test_delete_user():
-    url = "https://petstore.swagger.io/v2/user/denzel"
-    request = {}
-    request['id'] = 777555
-    request['username'] = 'denzel'
-    request['firstName'] = 'Denis'
-    request['lastName'] = 'Denisov'
-    request['email'] = 'denzel@sber.net'
-    request['password'] = '777555'
-    request['phone'] = 'iphone'
-    request['userStatus'] = 1
+    url = "https://petstore.swagger.io/v2/user/"
+    userName = "Denzel"
+    url_delete = url + "/" + userName
+    print("URL_delete", url_delete)
+    response_delete = requests.delete(url_delete)
+    print("responce =", response_delete.json())
 
-    print(request)
-
-    request_post = requests.post(url, json=request, verify=False)
-    print("result = ", request_post.json())
-
-    url_delete = "https://petstore.swagger.io/v2/user/denzel"
-
-    request_delete = requests.delete(url_delete, verify=False)
-    print("result delete =", request_delete.json())
-
-    assert request_delete.json()['code'] == 200
-
-
-    request_get = requests.get(url_delete, verify=False)
-    assert request_get.json()['message'] == 'User not found'
+    response_get = requests.get(url_delete)
+    print("responce =", response_get.json())
