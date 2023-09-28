@@ -22,7 +22,6 @@ def test_post_pet():
 
     assert request_post.json()['id'] == request_get.json()['id']
 
-
 def test_post_pet_negative():
     url = "https://petstore.swagger.io/v2/pet"
     request = {}
@@ -36,3 +35,6 @@ def test_post_pet_negative():
     print("result = ", request_post.json())
 
     assert request_post.json()['message'] == "something bad happened"
+
+
+
