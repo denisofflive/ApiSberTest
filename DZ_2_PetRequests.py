@@ -74,7 +74,7 @@ def test_post_pet_id_uploadImage():
 
     url_get = url + str(request['id'])
     response_get = requests.get(url_get)
-    print("responce =", response_get.json())
+    print("response =", response_get.json())
     assert response_get.json()['id'] == 1
     assert response_get.json()['status'] == "OK"
 
