@@ -1,9 +1,7 @@
 import requests
-
+import resources.urls as urls
 
 def test_post_create_user():
-    url = "https://petstore.swagger.io/v2/user"
-
     request = {}
     request["id"] = 777555
     request["username"] = "Denzel"
@@ -15,16 +13,15 @@ def test_post_create_user():
     request["userStatus"] = 0
     print(request)
 
-    response_post = requests.post(url, json=request, verify=False)
+    response_post = requests.post(urls.url_pet_user, json=request, verify=False)
     print("result = ", response_post.json())
 
     assert response_post.json()['code'] == 200
 
 
 def test_get_user():
-    url = "https://petstore.swagger.io/v2/user/"
     username = "Denzel"
-    url_get = url + username
+    url_get = urls.url_pet_user + "/" + username
     response_get = requests.get(url_get)
     print("response =", response_get.json())
     assert response_get.json()['id'] == 777555
@@ -32,8 +29,6 @@ def test_get_user():
 
 
 def test_put_user():
-    url = "https://petstore.swagger.io/v2/user/"
-
     request = {}
     request["id"] = 777555
     request["username"] = "Denzel"
@@ -45,7 +40,7 @@ def test_put_user():
     request["userStatus"] = 0
 
     print(request)
-    url_put = url + str(request['username'])
+    url_put = urls.url_pet_user + "/" + str(request['username'])
     print("url_put =", url_put)
     response_post = requests.put(url_put, json=request, verify=False)
     print("result = ", response_post.json())
@@ -57,9 +52,8 @@ def test_put_user():
 
 
 def test_delete_user():
-    url = "https://petstore.swagger.io/v2/user/"
     username = "Denzel"
-    url_delete = url + username
+    url_delete = urls.url_pet_user + "/" + username
     print("URL_delete", url_delete)
 
     response_delete = requests.delete(url_delete, verify=False)

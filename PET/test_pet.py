@@ -1,12 +1,12 @@
 import pytest
 import requests
 import json
-from resources import urls
+import resources.urls as urls
 
 
 def test_post_pet():
-    url = "https://petstore.swagger.io/v2/pet"
     request = {}
+    request['id'] = 1
     request['name'] = 'sberCat'
     request['photoUrls'] = ['photoSberCat']
     request['category'] = {}
@@ -14,19 +14,18 @@ def test_post_pet():
 
     print("request = ", request)
 
-    request_post = requests.post(url, json=request, verify=False)
+    request_post = requests.post(urls.url_pet_post, json=request, verify=False)
     print("result = ", request_post.json())
 
     """Проверяем что id не пустой конструкцией is not None"""
     assert request_post.json()['id'] is not None
 
-    url_get = "https://petstore.swagger.io/v2/pet/" + str(request_post.json()['id'])
-    request_get = requests.get(url_get, verify=False)
+    request_get = requests.get(urls.url_pet_get_id(str(request_post.json()['id'])), verify=False)
 
     assert request_post.json()['id'] == request_get.json()['id']
 
+
 def test_post_pet_negative():
-    url = "https://petstore.swagger.io/v2/pet"
     request = {}
     request['name'] = 'sberCat'
     request['photoUrls'] = ['photoSberCat']
@@ -35,20 +34,37 @@ def test_post_pet_negative():
 
     print("request = ", request)
 
-    request_post = requests.post(url, json=request, verify=False)
+    request_post = requests.post(urls.url_pet_post, json=request, verify=False)
     print("result = ", request_post.json())
 
     assert request_post.json()['message'] == "something bad happened"
+
+
 def test_get_pet():
-    url = "https://petstore.swagger.io/v2/pet/9223372036854775797"
-    response_get = requests.get(url)
+    # Создаём запрос
+    request = {}
+    request['id'] = 1
+    request['name'] = 'sberCat'
+    request['photoUrls'] = ['photoSberCat']
+    request['category'] = {}
+    request['category']['name'] = 'cats'
+    # Выводим запрос
+    print("request = ", request)
+    # Отправляем запрос
+    request_post = requests.post(urls.url_pet_post, json=request, verify=False)
+    # Выводим результат
+    print("result = ", request_post.json())
+
+    # Отправляем запрос на проверку животного с id созданного животного
+    response_get = requests.get(urls.url_pet_get_id("1"))
+    # Выводим ответ
     print("response =", response_get.json())
-    assert response_get.json()['id'] == 9223372036854775797
+    # Сравниваем ответ
+    assert response_get.json()['id'] == 1
 
 
 def test_get_pet_id_negative():
-    url = "https://petstore.swagger.io/v2/pet/123456789"
-    response_get = requests.get(url)
+    response_get = requests.get(urls.url_pet_get_id("123456789"))
     print("response =", response_get.json())
     assert response_get.json()['message'] == "Pet not found"
 
@@ -58,6 +74,7 @@ def test_get_pet_findByStatus_available():
     print("result =", response_get.json())
 
     assert response_get.json()[0]['status'] == 'available'
+
 
 def test_get_pet_findByStatus_sold():
     response_get = requests.get(urls.url_pet_findbystatus("sold"), verify=False)
@@ -79,8 +96,8 @@ def test_get_pet_findByStatus_negative():
 
     assert response_get.json()['message'] == "Pet not found"
 
+
 def test_put_pet():
-    url = "https://petstore.swagger.io/v2/pet"
     request = {}
     request['name'] = 'sberCat'
     request['photoUrls'] = ['photoSberCat']
@@ -88,7 +105,7 @@ def test_put_pet():
     request['category']['name'] = 'cats'
     print(request)
 
-    request_post = requests.post(url, json=request, verify=False)
+    request_post = requests.post(urls.url_pet_post, json=request, verify=False)
     print("result post= ", request_post.json())
 
     request_put = {}
@@ -97,33 +114,30 @@ def test_put_pet():
     request_put['photoUrls'] = ['photoSberDog']
     print('request put = ', request_put)
 
-    request_put_r = requests.put(url, json=request_put, verify=False)
+    request_put_r = requests.put(urls.url_pet_post, json=request_put, verify=False)
     print("result put=", request_put_r.json())
 
     assert request_put_r.json()['name'] == request_put['name']
 
-    url_get = "https://petstore.swagger.io/v2/pet/" + str(request_post.json()['id'])
-    request_get = requests.get(url_get, verify=False)
+    request_get = requests.get(urls.url_pet_get_id(str(request_post.json()['id'])), verify=False)
 
     assert request_get.json()['name'] == request_put['name']
 
 
 def test_put_pet_negative():
-    url = "https://petstore.swagger.io/v2/pet"
-
     request_put = {}
     request_put['id'] = []
     request_put['name'] = "sberDog"
     request_put['photoUrls'] = ['photoSberDog']
     print('request put = ', request_put)
 
-    request_put_r = requests.put(url, json=request_put, verify=False)
+    request_put_r = requests.put(urls.url_pet_post, json=request_put, verify=False)
     print("result put=", request_put_r.json())
 
     assert request_put_r.json()['message'] == 'something bad happened'
 
+
 def test_delete_pet():
-    url = "https://petstore.swagger.io/v2/pet"
     request = {}
     request['name'] = 'sberCat'
     request['photoUrls'] = ['photoSberCat']
@@ -131,24 +145,20 @@ def test_delete_pet():
     request['category']['name'] = 'cats'
     print("request = ", request)
 
-    request_post = requests.post(url, json=request, verify=False)
+    request_post = requests.post(urls.url_pet_post, json=request, verify=False)
     print("result = ", request_post.json())
 
-    url_delete = "https://petstore.swagger.io/v2/pet/" + str(request_post.json()['id'])
-
-    request_delete = requests.delete(url_delete, verify=False)
+    request_delete = requests.delete(urls.url_pet_get_id(str(request_post.json()['id'])), verify=False)
     print("result delete =", request_delete.json())
 
     assert request_delete.json()['code'] == 200
 
-    request_get = requests.get(url_delete, verify=False)
+    request_get = requests.get(urls.url_pet_get_id(str(request_post.json()['id'])), verify=False)
     assert request_get.json()['message'] == 'Pet not found'
 
 
 def test_delete_pet_negative():
-    url_delete = "https://petstore.swagger.io/v2/pet" + "7777"
-
-    request_delete = requests.delete(url_delete, verify=False)
+    request_delete = requests.delete(urls.url_pet_get_id("7777"), verify=False)
     print("result delete =", request_delete)
 
     assert str(request_delete).__contains__("404")
