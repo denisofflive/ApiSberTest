@@ -20,6 +20,20 @@ def test_post_create_user():
 
 
 def test_get_user():
+    request = {}
+    request["id"] = 777555
+    request["username"] = "Denzel"
+    request["firstName"] = "Denis"
+    request["lastName"] = "Denisov"
+    request["email"] = "denzel@sber.net"
+    request["password"] = "777555"
+    request["phone"] = "iphone"
+    request["userStatus"] = 0
+    print(request)
+
+    response_post = requests.post(urls.url_pet_user, json=request, verify=False)
+    print("result = ", response_post.json())
+
     username = "Denzel"
     url_get = urls.url_pet_user + "/" + username
     response_get = requests.get(url_get)
@@ -52,6 +66,20 @@ def test_put_user():
 
 
 def test_delete_user():
+    request = {}
+    request["id"] = 777555
+    request["username"] = "Denzel"
+    request["firstName"] = "Denis"
+    request["lastName"] = "Denisov"
+    request["email"] = "denzel@sber.net"
+    request["password"] = "777555"
+    request["phone"] = "iphone"
+    request["userStatus"] = 0
+    print(request)
+
+    response_post = requests.post(urls.url_pet_user, json=request, verify=False)
+    print("result = ", response_post.json())
+
     username = "Denzel"
     url_delete = urls.url_pet_user + "/" + username
     print("URL_delete", url_delete)
