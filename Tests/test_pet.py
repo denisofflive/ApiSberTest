@@ -1,6 +1,4 @@
-import pytest
 import requests
-import json
 import resources.urls as urls
 import Steps.support_steps as support_steps
 
@@ -9,9 +7,9 @@ def test_post_pet():
     request = {}
     request['id'] = 1
     request['name'] = support_steps.generate_random_letter_string(7)
-    request['photoUrls'] = ['photoSberCat']
+    request['photoUrls'] = [support_steps.generate_random_letter_string(7)]
     request['category'] = {}
-    request['category']['name'] = 'cats'
+    request['category']['name'] = support_steps.generate_random_letter_string(7)
 
     print("request = ", request)
 
@@ -29,7 +27,7 @@ def test_post_pet():
 def test_post_pet_negative():
     request = {}
     request['name'] = support_steps.generate_random_letter_string(7)
-    request['photoUrls'] = ['photoSberCat']
+    request['photoUrls'] = [support_steps.generate_random_letter_string(7)]
     request['category'] = {}
     request['category']['name'] = []
 
@@ -46,9 +44,9 @@ def test_get_pet():
     request = {}
     request['id'] = 1
     request['name'] = support_steps.generate_random_letter_string(7)
-    request['photoUrls'] = ['photoSberCat']
+    request['photoUrls'] = [support_steps.generate_random_letter_string(7)]
     request['category'] = {}
-    request['category']['name'] = 'cats'
+    request['category']['name'] = support_steps.generate_random_letter_string(7)
     # Выводим запрос
     print("request = ", request)
     # Отправляем запрос
@@ -65,7 +63,7 @@ def test_get_pet():
 
 
 def test_get_pet_id_negative():
-    response_get = requests.get(urls.url_pet_get_id("123456789"))
+    response_get = requests.get(urls.url_pet_get_id(support_steps.generate_random_number_string(7)))
     print("response =", response_get.json())
     assert response_get.json()['message'] == "Pet not found"
 
@@ -92,7 +90,7 @@ def test_get_pet_findByStatus_pending():
 
 
 def test_get_pet_findByStatus_negative():
-    response_get = requests.get(urls.url_pet_post + "/" + str(777777777), verify=False)
+    response_get = requests.get(urls.url_pet_post + "/" + str(support_steps.generate_random_number_string(7)), verify=False)
     print("result =", response_get.json())
 
     assert response_get.json()['message'] == "Pet not found"
@@ -101,9 +99,9 @@ def test_get_pet_findByStatus_negative():
 def test_put_pet():
     request = {}
     request['name'] = support_steps.generate_random_letter_string(7)
-    request['photoUrls'] = ['photoSberCat']
+    request['photoUrls'] = [support_steps.generate_random_letter_string(7)]
     request['category'] = {}
-    request['category']['name'] = 'cats'
+    request['category']['name'] = support_steps.generate_random_letter_string(7)
     print(request)
 
     request_post = requests.post(urls.url_pet_post, json=request, verify=False)
@@ -112,7 +110,7 @@ def test_put_pet():
     request_put = {}
     request_put['id'] = str(request_post.json()['id'])
     request_put['name'] = support_steps.generate_random_letter_string(7)
-    request_put['photoUrls'] = ['photoSberDog']
+    request_put['photoUrls'] = [support_steps.generate_random_letter_string(7)]
     print('request put = ', request_put)
 
     request_put_r = requests.put(urls.url_pet_post, json=request_put, verify=False)
@@ -129,7 +127,7 @@ def test_put_pet_negative():
     request_put = {}
     request_put['id'] = []
     request_put['name'] = support_steps.generate_random_letter_string(7)
-    request_put['photoUrls'] = ['photoSberDog']
+    request_put['photoUrls'] = [support_steps.generate_random_letter_string(7)]
     print('request put = ', request_put)
 
     request_put_r = requests.put(urls.url_pet_post, json=request_put, verify=False)
@@ -141,9 +139,9 @@ def test_put_pet_negative():
 def test_delete_pet():
     request = {}
     request['name'] = support_steps.generate_random_letter_string(7)
-    request['photoUrls'] = ['photoSberCat']
+    request['photoUrls'] = [support_steps.generate_random_letter_string(7)]
     request['category'] = {}
-    request['category']['name'] = 'cats'
+    request['category']['name'] = support_steps.generate_random_letter_string(7)
     print("request = ", request)
 
     request_post = requests.post(urls.url_pet_post, json=request, verify=False)
@@ -159,7 +157,23 @@ def test_delete_pet():
 
 
 def test_delete_pet_negative():
-    request_delete = requests.delete(urls.url_pet_get_id("7777"), verify=False)
+    request_delete = requests.delete(urls.url_pet_get_id(support_steps.generate_random_letter_string(7)), verify=False)
     print("result delete =", request_delete)
 
     assert str(request_delete).__contains__("404")
+
+
+def test_post_pet_id_uploadImage():
+    request = {}
+    request['id'] = support_steps.generate_random_number_string(7)
+    print("url_post =", urls.url_pet_post_uploadimage('1'))
+
+    fp = open('../files/send.txt')
+    files = {'file': fp}
+    response = requests.post(urls.url_pet_post_uploadimage('2'), files=files)
+    fp.close()
+    print(response.text)
+
+    response_get = requests.get(urls.url_pet_get_id('1'))
+    print("response =", response_get.json())
+    assert response_get.json()['id'] == 1

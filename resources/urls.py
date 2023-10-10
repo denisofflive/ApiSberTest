@@ -10,3 +10,7 @@ def url_pet_get_id(pet_id):
 
 def url_pet_findbystatus(status):
     return url_pet_post + "/findByStatus?status=" + status
+
+def url_pet_post_uploadimage(pet_id):
+    print("url_1", url_pet_post + "/" + pet_id + "/uploadImage")
+    return url_pet_post + "/" + pet_id + "/uploadImage"
