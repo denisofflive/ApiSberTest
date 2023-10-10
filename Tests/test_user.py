@@ -2,6 +2,7 @@ import requests
 import resources.urls as urls
 import Steps.support_steps as support_steps
 
+
 def test_post_create_user():
     request = {}
     request["id"] = 777555
