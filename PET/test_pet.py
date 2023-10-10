@@ -2,12 +2,13 @@ import pytest
 import requests
 import json
 import resources.urls as urls
+import Steps.support_steps as support_steps
 
 
 def test_post_pet():
     request = {}
     request['id'] = 1
-    request['name'] = 'sberCat'
+    request['name'] = support_steps.generate_random_letter_string(7)
     request['photoUrls'] = ['photoSberCat']
     request['category'] = {}
     request['category']['name'] = 'cats'
@@ -27,7 +28,7 @@ def test_post_pet():
 
 def test_post_pet_negative():
     request = {}
-    request['name'] = 'sberCat'
+    request['name'] = support_steps.generate_random_letter_string(7)
     request['photoUrls'] = ['photoSberCat']
     request['category'] = {}
     request['category']['name'] = []
@@ -44,7 +45,7 @@ def test_get_pet():
     # Создаём запрос
     request = {}
     request['id'] = 1
-    request['name'] = 'sberCat'
+    request['name'] = support_steps.generate_random_letter_string(7)
     request['photoUrls'] = ['photoSberCat']
     request['category'] = {}
     request['category']['name'] = 'cats'
@@ -99,7 +100,7 @@ def test_get_pet_findByStatus_negative():
 
 def test_put_pet():
     request = {}
-    request['name'] = 'sberCat'
+    request['name'] = support_steps.generate_random_letter_string(7)
     request['photoUrls'] = ['photoSberCat']
     request['category'] = {}
     request['category']['name'] = 'cats'
@@ -110,7 +111,7 @@ def test_put_pet():
 
     request_put = {}
     request_put['id'] = str(request_post.json()['id'])
-    request_put['name'] = "sberDog"
+    request_put['name'] = support_steps.generate_random_letter_string(7)
     request_put['photoUrls'] = ['photoSberDog']
     print('request put = ', request_put)
 
@@ -127,7 +128,7 @@ def test_put_pet():
 def test_put_pet_negative():
     request_put = {}
     request_put['id'] = []
-    request_put['name'] = "sberDog"
+    request_put['name'] = support_steps.generate_random_letter_string(7)
     request_put['photoUrls'] = ['photoSberDog']
     print('request put = ', request_put)
 
@@ -139,7 +140,7 @@ def test_put_pet_negative():
 
 def test_delete_pet():
     request = {}
-    request['name'] = 'sberCat'
+    request['name'] = support_steps.generate_random_letter_string(7)
     request['photoUrls'] = ['photoSberCat']
     request['category'] = {}
     request['category']['name'] = 'cats'

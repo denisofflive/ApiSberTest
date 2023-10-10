@@ -1,5 +1,6 @@
 import requests
 import resources.urls as urls
+import Steps.support_steps as support_steps
 
 def test_post_create_user():
     request = {}
@@ -8,7 +9,7 @@ def test_post_create_user():
     request["firstName"] = "Denis"
     request["lastName"] = "Denisov"
     request["email"] = "denzel@sber.net"
-    request["password"] = "777555"
+    request["password"] = support_steps.generate_random_number_string(7)
     request["phone"] = "iphone"
     request["userStatus"] = 0
     print(request)
@@ -26,7 +27,7 @@ def test_get_user():
     request["firstName"] = "Denis"
     request["lastName"] = "Denisov"
     request["email"] = "denzel@sber.net"
-    request["password"] = "777555"
+    request["password"] = support_steps.generate_random_number_string(7)
     request["phone"] = "iphone"
     request["userStatus"] = 0
     print(request)
@@ -38,7 +39,7 @@ def test_get_user():
     url_get = urls.url_pet_user + "/" + username
     response_get = requests.get(url_get)
     print("response =", response_get.json())
-    assert response_get.json()['id'] == 777555
+    assert response_get.json()['username'] == 'Denzel'
     assert response_get.json()['userStatus'] == 0
 
 
@@ -49,8 +50,8 @@ def test_put_user():
     request["firstName"] = "Denis"
     request["lastName"] = "Denisov"
     request["email"] = "denzel@sber.net"
-    request["password"] = "777555"
-    request["phone"] = "android"
+    request["password"] = support_steps.generate_random_number_string(7)
+    request["phone"] = "iphone"
     request["userStatus"] = 0
 
     print(request)
@@ -62,7 +63,7 @@ def test_put_user():
     response_get = requests.get(url_put)
     print("response =", response_get.json())
 
-    assert response_get.json()['id'] == 777555
+    assert response_get.json()['username'] == "Denzel"
 
 
 def test_delete_user():
@@ -72,7 +73,7 @@ def test_delete_user():
     request["firstName"] = "Denis"
     request["lastName"] = "Denisov"
     request["email"] = "denzel@sber.net"
-    request["password"] = "777555"
+    request["password"] = support_steps.generate_random_number_string(7)
     request["phone"] = "iphone"
     request["userStatus"] = 0
     print(request)
