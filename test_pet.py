@@ -1,29 +1,36 @@
 import requests
+import pytest
 import resources.urls as urls
-import Steps.support_steps as support_steps
+from Steps import support_steps as support_steps
+from Steps import generate_json_steps as generate_json_steps
+from Steps import request_steps as request_steps
+from Steps import assert_steps as assert_steps
 
-
-def test_post_pet():
-    request = {}
-    request['id'] = 1
-    request['name'] = support_steps.generate_random_letter_string(7)
-    request['photoUrls'] = [support_steps.generate_random_letter_string(7)]
-    request['category'] = {}
-    request['category']['name'] = support_steps.generate_random_letter_string(7)
-
-    print("request = ", request)
-
-    request_post = requests.post(urls.url_pet_post, json=request, verify=False)
+# Тест создания нового питомца
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
+@pytest.mark.parametrize(
+    'type',
+    [
+        (generate_json_steps.create_json_post_pet_required_params()),
+        (generate_json_steps.create_json_post_pet_required_params())
+    ],
+    ids=['required params', 'all params']
+)
+def test_post_pet(type):
+# Создание JSON с передаваемым типом
+    request = type
+# Отправка запроса
+    request_post = request_steps.request_post(urls.url_pet_post, request)
     print("result = ", request_post.json())
+# Проверяем что id не пустой конструкцией is not None
+    assert_steps.assert_not_none_id(request_post)
+# Проверка через GET, что объект действительно создан
+    request_get = request_steps.request_get(urls.url_pet_get_id(str(request_post.json()['id'])))
+# Проверка, что по данному ID возвращается первоначально созданный объект
+    assert_steps.assert_equals_response_ids(request_post, request_get)
 
-    """Проверяем что id не пустой конструкцией is not None"""
-    assert request_post.json()['id'] is not None
-
-    request_get = requests.get(urls.url_pet_get_id(str(request_post.json()['id'])), verify=False)
-
-    assert request_post.json()['id'] == request_get.json()['id']
-
-
+@pytest.mark.regress_tests
 def test_post_pet_negative():
     request = {}
     request['name'] = support_steps.generate_random_letter_string(7)
