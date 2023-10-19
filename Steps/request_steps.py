@@ -12,3 +12,15 @@ def request_post(url, request):
 def request_get(url):
     request = requests.get(url, verify=False)
     return request
+
+# Изменение данных методом PUT
+# URL - эндпоинт
+def request_put(url, request):
+    response = requests.put(url, json=request, verify=False)
+    return response
+
+# Удаление пользователя
+# URL - эндпоинт
+def delete_user(url):
+    response = requests.delete(url, verify=False)
+    return response
