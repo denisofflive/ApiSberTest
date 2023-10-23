@@ -63,7 +63,7 @@ def create_json_pet_user(username):
 def create_json_pet_put(id):
     request = {}
     request['id'] = id
-    request['name'] = "SberMan"
+    request['name'] = "sberWowKitten"
     print("request =", request)
     return request
 
@@ -71,12 +71,12 @@ def create_json_pet_put(id):
 def create_json_user_put():
     request = {}
     request['id'] = 1
-    request['username'] = "Denzel"
-    request['firstname'] = "Dog"
+    request['username'] = "Catty"
+    request['firstname'] = "Cat"
     request['lastname'] = "Sber"
-    request['email'] = "denzel@sber.net"
+    request['email'] = "SberCat@sber.ru"
     request['password'] = "sber_pass"
-    request['phone'] = "123-45-67"
+    request['phone'] = "999-99-99"
     request['userstatus'] = "0"
     print("request =", request)
     return request

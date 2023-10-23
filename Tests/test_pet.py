@@ -9,14 +9,13 @@ from Steps import assert_steps as assert_steps
 # Тест создания нового питомца
 @pytest.mark.smoke_tests
 @pytest.mark.regress_tests
-@pytest.mark.parametrize(
-    'type',
-    [
-        (generate_json_steps.create_json_post_pet_required_params()),
-        (generate_json_steps.create_json_post_pet_required_params())
-    ],
-    ids=['required params', 'all params']
-)
+@pytest.mark.parametrize('type',
+                         [
+                             generate_json_steps.create_json_post_pet_required_params(),
+                             generate_json_steps.create_json_post_pet_all_params()
+                         ],
+                         ids=["required_param", "all_param"]
+                         )
 def test_post_pet(type):
 # Создание JSON с передаваемым типом
     request = type
