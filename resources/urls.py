@@ -12,7 +12,7 @@ url_delete = url_pet_user + "/" + username
 
 
 def url_pet_get_id(pet_id):
-    return main_url + "pet/" + pet_id
+    return url_pet_post + "/" + pet_id
 
 
 def url_pet_findbystatus(status):

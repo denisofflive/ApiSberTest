@@ -3,17 +3,17 @@ from Steps import support_steps as support_steps
 # Создаём JSON для метода POST /pet с обязательными параметрами
 def create_json_post_pet_required_params():
     request = {}
-    request['name'] = support_steps.generate_random_letter_strings(5)
+    request['name'] = support_steps.generate_random_letter_strings(6)
     request['category'] = {}
-    request['category']['name'] = support_steps.generate_random_letter_strings(5)
-    request['photoUrls'] = [support_steps.generate_random_letter_strings(5)]
+    request['category']['name'] = support_steps.generate_random_letter_strings(6)
+    request['photoUrls'] = [support_steps.generate_random_letter_strings(6)]
     print("request =", request)
     return request
 
 # Создаём JSON для метода POST /pet с обязательными параметрами
 def create_json_post_pet_all_params():
     request = {}
-    request['id'] = support_steps.generate_random_letter_strings(7)
+    request['id'] = support_steps.generate_random_number_strings(7)
     request['category'] = {}
     request['category']['id'] = support_steps.generate_random_number_strings(7)
     request['category']['name'] = support_steps.generate_random_letter_strings(7)
@@ -63,7 +63,7 @@ def create_json_pet_user(username):
 def create_json_pet_put(id):
     request = {}
     request['id'] = id
-    request['name'] = "sberMan"
+    request['name'] = "SberMan"
     print("request =", request)
     return request
 
@@ -71,11 +71,11 @@ def create_json_pet_put(id):
 def create_json_user_put():
     request = {}
     request['id'] = 1
-    request['username'] = "Kitty"
-    request['firstname'] = "Cat"
+    request['username'] = "Denzel"
+    request['firstname'] = "Dog"
     request['lastname'] = "Sber"
     request['email'] = "denzel@sber.net"
-    request['password'] = "sber_mir"
+    request['password'] = "sber_pass"
     request['phone'] = "123-45-67"
     request['userstatus'] = "0"
     print("request =", request)
