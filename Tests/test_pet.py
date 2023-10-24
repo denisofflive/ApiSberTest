@@ -55,7 +55,6 @@ def test_put_pet():
     response_post = test_post_pet(generate_json_steps.create_json_post_pet_all_params())
     # Анализируем ответ
     assert_steps.assert_not_none_id(response_post)
-    print(response_post)
     # сформируем JSON с нужными полями
     request = generate_json_steps.create_json_pet_put(str(response_post.json()['id']))
     # Выполним PUT
