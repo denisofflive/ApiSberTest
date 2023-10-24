@@ -28,6 +28,7 @@ def test_post_pet(type):
     request_get = request_steps.request_get(urls.url_pet_get_id(str(request_post.json()['id'])))
 # Проверка, что по данному ID возвращается первоначально созданный объект
     assert_steps.assert_equals_response_ids(request_post, request_get)
+    return request_post
 
 # Тест проверки существования животного с заданным id
 @pytest.mark.smoke_API
@@ -51,6 +52,7 @@ def test_put_pet():
     response_post = test_post_pet(generate_json_steps.create_json_post_pet_all_params())
     # Анализируем ответ
     assert_steps.assert_not_none_id(response_post)
+    print(response_post)
     # сформируем JSON с нужными полями
     request = generate_json_steps.create_json_pet_put(str(response_post.json()['id']))
     # Выполним PUT
