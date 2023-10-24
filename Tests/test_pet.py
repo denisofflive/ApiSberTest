@@ -5,10 +5,13 @@ from Steps import support_steps as support_steps
 from Steps import generate_json_steps as generate_json_steps
 from Steps import request_steps as request_steps
 from Steps import assert_steps as assert_steps
+import pytest
+import allure
 
 # Тест создания нового питомца
-@pytest.mark.smoke_tests
-@pytest.mark.regress_tests
+@allure.step
+@pytest.mark.smoke_API
+@pytest.mark.pet
 @pytest.mark.parametrize('type',
                          [
                              generate_json_steps.create_json_post_pet_required_params(),
