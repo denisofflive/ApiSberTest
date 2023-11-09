@@ -35,3 +35,8 @@ def assert_page_not_found(response):
     with allure.step("Функия проверяет, что страницы не существует"):
         assert str(response).__contains__("404")
         print("PASSED")
+
+def assert_status_not_found(response):
+    with allure.step("Функия проверяет, что статуса не существует"):
+        assert str(response).__contains__("200")
+        print("PASSED")
