@@ -166,7 +166,7 @@ def test_post_pet_id_uploadImage():
     request['id'] = support_steps.generate_random_number_strings(7)
     print("url_post =", urls.url_pet_post_uploadimage('1'))
 
-    fp = open('files/send.txt')
+    fp = open('../files/send.txt')
     files = {'file': fp}
     response = requests.post(urls.url_pet_post_uploadimage('2'), files=files)
     fp.close()
