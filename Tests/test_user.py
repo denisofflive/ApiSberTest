@@ -3,7 +3,7 @@ import resources.urls as urls
 import Steps.generate_json_steps as generate_json_steps
 import Steps.request_steps as request_steps
 import pytest
-from Steps import assert_steps, support_steps
+from Steps import assert_steps
 
 
 # Тест создания пользователя без указания имени
