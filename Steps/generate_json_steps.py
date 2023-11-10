@@ -12,14 +12,14 @@ def create_json_post_pet_required_params():
         print("request =", request)
         return request
 
-# Создаём JSON для метода POST /pet с НЕобязательными параметрами
-def create_json_post_pet_not_required_params():
+# Создаём JSON для метода POST /pet с рекомендованными полями
+def create_json_post_pet_required_fields():
     with allure.step("Создаем JSON для метода POST /pet с обязательными параметрами"):
         request = {}
-        request['name'] = []
+        request['name'] = support_steps.generate_random_letter_strings(7)
         request['category'] = {}
-        request['category']['name'] = []
-        request['photoUrls'] = []
+        request['category']['name'] = support_steps.generate_random_letter_strings(7)
+        request['photoUrls'] = [support_steps.generate_random_letter_strings(7)]
         print("request =", request)
         return request
 

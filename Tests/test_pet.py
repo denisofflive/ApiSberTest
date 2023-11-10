@@ -40,13 +40,8 @@ def test_post_pet(type):
 
 def test_post_pet_negative():
     # Создание JSON c отсутствующим параметром (request['category']['name'] =)
-    request = {}
-    request['name'] = 'SberCat'
-    request['category'] = {}
-    request['category']['name'] = []
-    request['photoUrls'] = ['photoSberCat']
-    print("request =", request)
-
+    request = generate_json_steps.create_json_post_pet_required_fields()
+    request['name'] = []
     # Отправка запроса
     request_post = request_steps.request_post(urls.url_pet_post, request)
     print("result = ", request_post.json())
