@@ -20,19 +20,18 @@ import allure
                          ids=["required_param", "all_param"]
                          )
 def test_post_pet(type):
-# Создание JSON с передаваемым типом
+    # Создание JSON с передаваемым типом
     request = type
-# Отправка запроса
+    # Отправка запроса
     request_post = request_steps.request_post(urls.url_pet_post, request)
     print("result = ", request_post.json())
-# Проверяем что id не пустой конструкцией is not None
+    # Проверяем что id не пустой конструкцией is not None
     assert_steps.assert_not_none_id(request_post)
-# Проверка через GET, что объект действительно создан
+    # Проверка через GET, что объект действительно создан
     request_get = request_steps.request_get(urls.url_pet_get_id(str(request_post.json()['id'])))
-# Проверка, что по данному ID возвращается первоначально созданный объект
+    # Проверка, что по данному ID возвращается первоначально созданный объект
     assert_steps.assert_equals_response_ids(request_post, request_get)
     return request_post
-
 
 # Негативный тест создания нового питомца
 @allure.step
@@ -40,15 +39,19 @@ def test_post_pet(type):
 @pytest.mark.pet
 
 def test_post_pet_negative():
-# Создание JSON с передаваемым типом (с НЕобязательными параметрами)
-    request = generate_json_steps.create_json_post_pet_not_required_params()
-# Отправка запроса
+    # Создание JSON c отсутствующим параметром (request['category']['name'] =)
+    request = {}
+    request['name'] = 'SberCat'
+    request['category'] = {}
+    request['category']['name'] = []
+    request['photoUrls'] = ['photoSberCat']
+    print("request =", request)
+
+    # Отправка запроса
     request_post = request_steps.request_post(urls.url_pet_post, request)
     print("result = ", request_post.json())
-# Проверяем ответ
+    # Проверяем ответ
     assert_steps.assert_equals_response_value(request_post, 'message', 'something bad happened')
-    return request_post
-
 
 # Тест проверки существования животного с заданным id
 @pytest.mark.smoke_API
@@ -146,7 +149,6 @@ def test_get_pet_by_status():
     print("response =", response_get.json())
     assert response_get.json()[0]['status'] == "sold"
 
-
 # Негативный тест поиска животного по несуществующему статусу
 @pytest.mark.smoke_API
 @pytest.mark.pet
@@ -159,7 +161,6 @@ def test_get_pet_by_status_negative():
     response_get = request_steps.request_get(urls.url_pet_findbystatus("negative"))
     print("response =", response_get.json())
     assert_steps.assert_status_not_found(response_get)
-
 
 def test_post_pet_id_uploadImage():
     request = {}
@@ -175,5 +176,3 @@ def test_post_pet_id_uploadImage():
     response_get = requests.get(urls.url_pet_get_id('1'))
     print("response =", response_get.json())
     assert response_get.json()['id'] == 1
-
-
