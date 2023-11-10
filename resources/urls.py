@@ -1,6 +1,5 @@
 # Функции генерации URL
 from Steps import support_steps, generate_json_steps
-import requests
 
 main_url = "https://petstore.swagger.io/v2/"
 
