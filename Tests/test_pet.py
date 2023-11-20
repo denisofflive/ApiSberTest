@@ -67,10 +67,9 @@ def test_get_pet():
 @pytest.mark.pet
 def test_get_pet_negative():
     # Формируем URL c не существующим ID
-    url_get = urls.url_pet_post + "/" + support_steps.generate_random_number_strings(5)
-    print(url_get)
+    print(urls.url_get)
     # проверяем ответ
-    response_get = request_steps.request_get(url_get)
+    response_get = request_steps.request_get(urls.url_get)
     print(response_get)
     # Проверяем, что такой страницы (пользователя) не существует
     assert_steps.assert_page_not_found(response_get)
@@ -142,7 +141,7 @@ def test_get_pet_by_status():
     # Проверим есть ли животное с нужным статусом
     response_get = request_steps.request_get(urls.url_pet_findbystatus("sold"))
     print("response =", response_get.json())
-    assert response_get.json()[0]['status'] == "sold"
+    assert_steps.assert_status_sold(response_get)
 
 # Негативный тест поиска животного по несуществующему статусу
 @pytest.mark.smoke_API
@@ -158,16 +157,15 @@ def test_get_pet_by_status_negative():
     assert_steps.assert_status_not_found(response_get)
 
 def test_post_pet_id_uploadImage():
-    request = {}
-    request['id'] = support_steps.generate_random_number_strings(7)
-    print("url_post =", urls.url_pet_post_uploadimage('1'))
-
+    # Открываем фаил
     fp = open('../files/send.txt')
     files = {'file': fp}
+    # Формируем запрос
     response = requests.post(urls.url_pet_post_uploadimage('2'), files=files)
     fp.close()
     print(response.text)
-
+    # Проверяем запрос
     response_get = requests.get(urls.url_pet_get_id('1'))
     print("response =", response_get.json())
-    assert response_get.json()['id'] == 1
+    # Проверяем ответ
+    assert_steps.assert_id_1(response_get)

@@ -47,11 +47,11 @@ def test_put_user():
     # сформируем JSON с нужными полями
     request = generate_json_steps.create_json_user_put()
     # Выполним PUT
-    response_put = request_steps.request_put(urls.url_put, request)
+    response_put = request_steps.request_put(urls.url_put_users, request)
     # Проверяем ответ
     assert_steps.assert_equals_response_value(response_put, 'code', '200')
     # Передаем запрос
-    response_get = request_steps.request_get(urls.url_put)
+    response_get = request_steps.request_get(urls.url_put_users)
     # Печатаем ответ
     print("response =", response_get.json())
     # Проверяем ответ
