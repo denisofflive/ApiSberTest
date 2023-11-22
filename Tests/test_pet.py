@@ -163,7 +163,7 @@ def test_get_by_status(status):
 
 # Негативный тест поиска питомца по статусу
 @pytest.mark.regress_tests
-def test_get_negative_by_status():
+def test_get_by_status_negative():
     # Отправляем запрос
     response = requests_steps.request_get(
         urls.url_pet_get_findByStatus(support_steps.generate_random_letter_strings(6)))
@@ -218,7 +218,7 @@ def test_post_pet_uploadImage():
 
 # Негативный тест загрузки файла для несуществующего питомца
 @pytest.mark.regress_tests
-def test_post_pet_negative_uploadImage():
+def test_post_pet_uploadImage_negative():
     # Работа с файлом
     fp = open('D:\\ApiSberTest\\files\\send.txt', 'rb')
     files = {'file': fp}
