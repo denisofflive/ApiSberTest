@@ -1,28 +1,36 @@
 import random
 import string
-import allure
 
-"""Функция генерирует строку чисел 0-9 заданной длины"""
+
+# Создание строки чисел 0-9 заданной длины
 def generate_random_number_strings(length):
-    with allure.step("функция генерирует строку чисел 0-9 заданной длинны"):
-        result = ""
-        for i in range(0, length):
-            result += str(random.randint(0, 9))
-        return result
+    result = ""
+    for i in range(0, length):
+        result += str(random.randint(0, 9))
+    return result
 
-"""Функция генерирует текстовую строку заданной длины"""
+# Создание текстовой строки заданной длины
 def generate_random_letter_strings(length):
-    with allure.step("функция генерирует текстовую строку заданной длинны"):
-        result = ""
-        for i in range(0, length):
-            result += str(random.choice(string.ascii_letters[random.randint(0, 9)]))
-        return result
+    result = ""
+    for i in range(0, length):
+        result += str(random.choice(string.ascii_letters[random.randint(0, 5)]))
+    return result
 
-"""Функция генерирует текстовую  - email"""
-def generate_random_email_strings(length):
-    with allure.step("функция генерирует email"):
-        result = ""
-        for i in range(0, length):
-            result += str(random.choice(string.ascii_letters[random.randint(0, 9)])) + "@" + str(
-                random.choice(string.ascii_letters[random.randint(0, 9)])) + ".net"
-        return result
+# Создание email
+def generate_random_email_strings():
+    result = ""
+    for i in range(0, 8):
+        result += str(random.choice(string.ascii_letters[random.randint(0, 5)]))
+    result += "@"
+    for i in range(0, 4):
+        result += str(random.choice(string.ascii_letters[random.randint(0, 5)]))
+    result += ".com"
+    return result
+
+# Создание телефонного номера
+def generate_random_phone_number_strings():
+    result = "+"
+    result += str(random.randint(0, 99))
+    for i in range(0, 10):
+        result += str(random.randint(0, 9))
+    return result

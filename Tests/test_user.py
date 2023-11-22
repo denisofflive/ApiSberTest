@@ -1,75 +1,100 @@
-import requests
-import resources.urls as urls
-import Steps.generate_json_steps as generate_json_steps
-import Steps.request_steps as request_steps
 import pytest
-from Steps import assert_steps
+import resources.urls as urls
+import Steps.support_steps as support_steps
+import Steps.generate_json_steps as generate_json_steps
+import Steps.request_steps as requests_steps
+import Steps.assert_steps as assert_steps
 
+# Тестирование API для управления пользователями
 
-# Тест создания пользователя без указания имени
-@pytest.mark.smoke_API
-@pytest.mark.user
-def test_post_user_runner():
-    post_user('')
-
-# Тест создания пользователя с указанием имени
-@pytest.mark.smoke_API
-@pytest.mark.user
-def post_user(username):
-    # Создаем JSON
-    request = generate_json_steps.create_json_pet_user(username)
+# Тест создания пользователя
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
+def test_post_user():
+    # Создаём JSON с обязательными параметрами
+    request = generate_json_steps.generate_json_user_random()
     # Отправляем запрос
-    response_post = requests.post(urls.url_pet_user, json=request)
-    # Выводим результат
-    print("result = ", response_post.json())
-    # Проверяем, что вернулся код ответа 200
-    assert_steps.assert_equals_response_value(response_post, 'code', '200')
-    # Проверяем, что вернулся тип ответа unknown
-    assert_steps.assert_equals_response_value(response_post, 'type', 'unknown')
+    response = requests_steps.request_post(urls.main_url_user, request)
+    # Анализируем ответ
+    assert_steps.assert_response_has_status(response, 200)
 
-# Тест получения пользователя
-@pytest.mark.smoke_API
-@pytest.mark.user
+# Негативный тест создания пользователя
+@pytest.mark.regress_tests
+def test_post_user_negative():
+    # Создать запрос
+    request = generate_json_steps.generate_json_post_null()
+    # Отправить запрос
+    response = requests_steps.request_post(urls.main_url_user, request)
+    # Анализируем ответ
+    assert_steps.assert_name_is_equal_value(response, "message", "0")
+
+# Тест вывода информации по пользователю
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
 def test_get_user():
-    # Подготавливаем тестового пользователя
-    post_user(urls.username)
-    # Передаем запрос
-    response_get = requests.get(urls.url_get_user)
-    # Печатаем ответ
-    print("response =", response_get.json())
-    # Проверяем статус ответа
-    assert_steps.assert_equals_response_value(response_get, 'userStatus', '0')
+    # Создаем пользователя
+    request_post = generate_json_steps.generate_json_user_random()
+    response_post = requests_steps.request_post(urls.main_url_user, request_post)
+    # Отправляем запрос GET
+    response_get = requests_steps.request_get(urls.url_user_username(request_post['username']))
+    # Анализируем ответ
+    assert_steps.assert_equals_response_username(response_get, request_post)
+    assert_steps.assert_response_has_status(response_get, 200)
 
-# Тест изменения пользователя
-@pytest.mark.smoke_API
-@pytest.mark.user
+# Негативный тест вывода информации по пользователю
+@pytest.mark.regress_tests
+def test_get_user_negative():
+    # Отправляем запрос GET
+    response_get = requests_steps.request_get(urls.url_user_username(support_steps.generate_random_letter_strings(20)))
+    # Анализируем ответ
+    assert_steps.assert_name_is_equal_value(response_get, "type", "error")
+    assert_steps.assert_response_has_status(response_get, 404)
+
+# Тест на обновление пользователя
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
 def test_put_user():
-    # сформируем JSON с нужными полями
-    request = generate_json_steps.create_json_user_put()
-    # Выполним PUT
-    response_put = request_steps.request_put(urls.url_put_users, request)
-    # Проверяем ответ
-    assert_steps.assert_equals_response_value(response_put, 'code', '200')
-    # Передаем запрос
-    response_get = request_steps.request_get(urls.url_put_users)
-    # Печатаем ответ
-    print("response =", response_get.json())
-    # Проверяем ответ
-    assert_steps.assert_equals_response_value(response_get, 'id', '1')
-    assert_steps.assert_equals_response_value(response_get, 'userStatus', '0')
+    # Создаем пользователя
+    request_post = generate_json_steps.generate_json_user_random()
+    response_post = requests_steps.request_post(urls.main_url_user, request_post)
+    # Создаем JSON с обязательными параметрами
+    request_put = generate_json_steps.generate_json_update_pet(response_post.json()['message'])
+    # Отправляем запрос
+    response_put = requests_steps.request_put(urls.url_user_username(str(request_post['username'])), request_put)
+    # Анализируем ответ
+    assert_steps.assert_response_has_status(response_put, 200)
 
-# Тест удаления пользователя
-@pytest.mark.smoke_API
-@pytest.mark.user
+# Негативный тест на обновление пользователя
+@pytest.mark.regress_tests
+def test_put_user_negative():
+    # Создаем JSON с обязательными параметрами
+    request = generate_json_steps.generate_json_put_negative()
+    # Отправляем запрос
+    response = requests_steps.request_put(urls.url_user_username(support_steps.generate_random_letter_strings(20)), request)
+    # Анализируем ответ
+    assert_steps.assert_name_is_equal_value(response, "message", "0")
+    assert_steps.assert_status_code_body(response, 200)
+
+# Тест на проверку удаления пользователя
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
 def test_delete_user():
-    # Создадим пользователя для последующего удаления
-    post_user(urls.username)
-    # Удалим пользователя
-    response_delete = request_steps.delete_user(urls.url_delete_user)
-    # Проверим результат удаления
-    assert_steps.assert_equals_response_value(response_delete, 'code', '200')
-    # Проверим, что пользователя больше нет
-    # Выполним поиск
-    response_get = request_steps.request_get(urls.url_delete_user)
-    # Проверим ответ
-    assert_steps.assert_page_not_found(response_get)
+    # Создаем пользователя
+    request_post = generate_json_steps.generate_json_user_random()
+    response_post = requests_steps.request_post(urls.main_url_user, request_post)
+    # Удаляем пользователя
+    response = requests_steps.request_delete(urls.url_user_username(str(request_post['username'])))
+    # Анализируем ответ
+    assert_steps.assert_response_has_status(response, 200)
+
+# Негативный тест на проверку удаления пользователя
+@pytest.mark.regress_tests
+def test_delete_user_negative():
+    # Отправляем запрос
+    response = requests_steps.request_delete(urls.url_user_username(support_steps.generate_random_letter_strings(20)))
+    # Анализируем ответ
+    assert_steps.assert_response_has_status(response, 404)
+
+# pytest test_user_api.py::test_del_negative_user - v - s
+# pytest -m smoke_regression
+# pytest test_post -n3

@@ -1,171 +1,234 @@
+import pytest
 import requests
-import pytest
 import resources.urls as urls
-from Steps import support_steps as support_steps
-from Steps import generate_json_steps as generate_json_steps
-from Steps import request_steps as request_steps
-from Steps import assert_steps as assert_steps
-import pytest
-import allure
+import Steps.support_steps as support_steps
+import Steps.generate_json_steps as generate_json_steps
+import Steps.request_steps as requests_steps
+import Steps.assert_steps as assert_steps
 
-# Тест создания нового питомца
-@allure.step
-@pytest.mark.smoke_API
-@pytest.mark.pet
+# Тестирование API для управления питомцами
+
+# Тест создания питомца
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
 @pytest.mark.parametrize('type',
                          [
-                             generate_json_steps.create_json_post_pet_required_params(),
-                             generate_json_steps.create_json_post_pet_all_params()
+                             generate_json_steps.generate_json_pet_required_param(),
+                             generate_json_steps.generate_json_pet()
                          ],
                          ids=["required_param", "all_param"]
                          )
 def test_post_pet(type):
-    # Создание JSON с передаваемым типом
+    # Создаем JSON с обязательными параметрами
     request = type
-    # Отправка запроса
-    request_post = request_steps.request_post(urls.url_pet_post, request)
-    print("result = ", request_post.json())
-    # Проверяем что id не пустой конструкцией is not None
-    assert_steps.assert_not_none_id(request_post)
-    # Проверка через GET, что объект действительно создан
-    request_get = request_steps.request_get(urls.url_pet_get_id(str(request_post.json()['id'])))
-    # Проверка, что по данному ID возвращается первоначально созданный объект
-    assert_steps.assert_equals_response_ids(request_post, request_get)
-    return request_post
-
-# Негативный тест создания нового питомца
-@allure.step
-@pytest.mark.smoke_API
-@pytest.mark.pet
-
-def test_post_pet_negative():
-    # Создание JSON c отсутствующим параметром (request['category']['name'] =)
-    request = generate_json_steps.create_json_post_pet_required_fields()
-    request['name'] = []
-    # Отправка запроса
-    request_post = request_steps.request_post(urls.url_pet_post, request)
-    print("result = ", request_post.json())
-    # Проверяем ответ
-    assert_steps.assert_equals_response_value(request_post, 'message', 'something bad happened')
-
-# Тест проверки существования животного с заданным id
-@pytest.mark.smoke_API
-@pytest.mark.pet
-def test_get_pet():
-    # Создадим животное
-    response_post = request_steps.request_post(urls.url_pet_post, generate_json_steps.create_json_post_pet_all_params())
-    # Отправляем запрос на проверку животного с id созданного животного
-    response_get = request_steps.request_get(urls.url_pet_get_id(str(response_post.json()['id'])))
-    # Выводим ответ
-    print("response =", response_get.json())
-    # Анализируем ответ
-    assert_steps.assert_equals_response_value(response_get, "id", str(response_post.json()['id']))
-    assert_steps.assert_equals_response_value(response_get, "status", "sold")
-
-# Негативный тест проверки существования животного с заданным id
-@pytest.mark.smoke_API
-@pytest.mark.pet
-def test_get_pet_negative():
-    # Формируем URL c не существующим ID
-    print(urls.url_get)
-    # проверяем ответ
-    response_get = request_steps.request_get(urls.url_get)
-    print(response_get)
-    # Проверяем, что такой страницы (пользователя) не существует
-    assert_steps.assert_page_not_found(response_get)
-
-# Тест изменения животного
-@pytest.mark.smoke_API
-@pytest.mark.pet
-def test_put_pet():
-    # Создадим животное с заданным ID
-    response_post = test_post_pet(generate_json_steps.create_json_post_pet_all_params())
-    # Анализируем ответ
-    assert_steps.assert_not_none_id(response_post)
-    # сформируем JSON с нужными полями
-    request = generate_json_steps.create_json_pet_put(str(response_post.json()['id']))
-    # Выполним PUT
-    response_put = request_steps.request_put(urls.url_pet_post, request)
-    # Проверяем ответ
-    assert_steps.assert_equals_response_value(response_put, 'photoUrls', '[]')
-
-# Негативный тест изменения животного
-@pytest.mark.smoke_API
-@pytest.mark.pet
-def test_put_pet_id_negative():
-    # Задаем ID животного
-    id = support_steps.generate_random_letter_strings(5)
-    # сформируем JSON с нужными полями
-    request = generate_json_steps.create_json_pet_put(id)
-    # Выполним PUT
-    response_put = request_steps.request_put(urls.url_pet_post, request)
-    # Проверяем ответ
-    assert_steps.assert_equals_response_value(response_put, 'message', 'something bad happened')
-
-# Тест удаления животного
-@pytest.mark.smoke_API
-@pytest.mark.pet
-def test_delete_pet():
     # Отправляем запрос
-    response_post = request_steps.request_post(urls.url_pet_post, generate_json_steps.create_json_post_pet_all_params())
-    # Формируем URL удаления
-    url_delete = urls.url_pet_post + "/" + str(response_post.json()['id'])
-    # Удаляем пользователя
-    response_delete = request_steps.delete_user(url_delete)
-    # Проверяем код ответа
-    assert_steps.assert_equals_response_value(response_delete, 'code', '200')
-    # Делаем запрос с ID удаленного животного
-    response_get = request_steps.request_get(url_delete)
-    # Проверяем, что животное удалено
-    assert_steps.assert_equals_response_value(response_get, 'message', 'Pet not found')
-
-# Негативный тест удаления животного
-@pytest.mark.smoke_API
-@pytest.mark.pet
-def test_delete_pet_id_negative():
-    # Формируем URL c не существующим ID для удаления
-    url_delete = urls.url_pet_post + "/" + support_steps.generate_random_number_strings(5)
-    # Удаляем пользователя
-    response_delete = request_steps.delete_user(url_delete)
-    # Проверяем, что такой страницы (пользователя) не существует
-    assert_steps.assert_page_not_found(response_delete)
-
-# тест поиска животного по статусу
-@pytest.mark.smoke_API
-@pytest.mark.pet
-def test_get_pet_by_status():
-    # Создадим животное
-    response_post = request_steps.request_post(urls.url_pet_post, generate_json_steps.create_json_post_pet_all_params())
-    # Анализируем ответ
+    response_post = requests_steps.request_post(urls.url_pet_post, request)
+    print("result=", response_post.json())
+    # Проверяем, что вернулся непустой ID созданного питомца
     assert_steps.assert_not_none_id(response_post)
-    # Проверим есть ли животное с нужным статусом
-    response_get = request_steps.request_get(urls.url_pet_findbystatus("sold"))
-    print("response =", response_get.json())
-    assert_steps.assert_status_sold(response_get)
+    # Проверяем, что созданного питомца можно получить запросом get
+    response_get = requests_steps.request_get(urls.url_pet_get_id(str(response_post.json()['id'])))
+    print("result get =", response_get.json())
+    # Проверяем, что вернулся именно тот ID питомца, с которым его создавали
+    assert_steps.assert_equals_response_ids(response_get, response_post)
 
-# Негативный тест поиска животного по несуществующему статусу
-@pytest.mark.smoke_API
-@pytest.mark.pet
-def test_get_pet_by_status_negative():
-    # Создадим животное
-    response_post = request_steps.request_post(urls.url_pet_post, generate_json_steps.create_json_post_pet_all_params())
+# Негативный тест создания питомца (вместо имени передаётся массив)
+@pytest.mark.regress_tests
+def test_post_pet_negative():
+    # Создаем json c для создания питомца
+    request = generate_json_steps.generate_json_pet()
+    # Заменяем в нем имя категории на невалидное
+    request["category"]["name"] = []
+    # Отправляем запрос
+    response_post = requests_steps.request_post(urls.url_pet_post, request)
+    print("result =", response_post.json())
+    # Проверяем ответ
+    assert_steps.assert_equals_response_values(response_post.json()['message'], "something bad happened")
+
+# Тест получения питомца по ID
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
+def test_get():
+    # Создаем json для питомца
+    request = generate_json_steps.generate_json_pet()
+    # Отправляем запрос на создание питомца
+    response_post = requests_steps.request_post(urls.url_pet_post, request)
+    # Отправляем запрос на получение питомца
+    response = requests_steps.request_get(urls.url_pet_get_id(str(response_post.json()['id'])))
+    # Смотрим, что в статус ответа 200 и что в ответе получили данные питомца
+    print("result =", response.json())
+    assert_steps.assert_equals_response_ids(response, response_post)
+    assert_steps.assert_equals_response_values(response.json()['status'], 'sold')
+    assert_steps.assert_response_has_status(response, 200)
+
+# Негативный тест поиска питомца по ID
+@pytest.mark.regress_tests
+def test_get_pet_id_negative():
+    # Отправляем запрос
+    response_get = requests_steps.request_get(urls.url_pet_get_id(support_steps.generate_random_number_strings(6)))
+    print("result =", response_get.json())
+    # Убеждаемся, что питомец не найден
+    assert_steps.assert_equals_response_values(response_get.json()['message'], "Pet not found")
+
+# Тест изменения данных о питомце запросом POST
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
+@pytest.mark.parametrize('type',
+                         [
+                             generate_json_steps.generate_json_pet_required_param(),
+                             generate_json_steps.generate_json_pet()
+                         ],
+                         ids=["required_param", "all_param"]
+                         )
+def test_post_pet_id(type):
+    # Создаем питомца
+    request_post = generate_json_steps.generate_json_pet()
+    response_post = requests_steps.request_post(urls.url_pet_post, request_post)
+    # Обновляем питомца
+    request_post_pet = type
+    response_post_pet = requests_steps.request_post_petID(urls.url_pet_get_id(str(response_post.json()['id'])), request_post_pet)
     # Анализируем ответ
-    assert_steps.assert_not_none_id(response_post)
-    # Проверим есть ли животное с несуществующим статусом
-    response_get = request_steps.request_get(urls.url_pet_findbystatus("negative"))
-    print("response =", response_get.json())
-    assert_steps.assert_status_not_found(response_get)
+    assert_steps.assert_status_code_body(response_post_pet, 200)
 
-def test_post_pet_id_uploadImage():
-    # Открываем фаил
-    fp = open('../files/send.txt')
+# Негативный тест - нельзя изменить несуществующего питомца
+@pytest.mark.regress_tests
+def test_post_pet_negative():
+    # задаем произвольное имя питомца
+    newname = support_steps.generate_random_letter_strings(6)
+    # Готовим и выполняем запрос на обновление
+    datamy = "name=" + newname + "&status=sold"
+    response_post_update = requests_steps.request_post_update(
+        urls.url_pet_get_id(support_steps.generate_random_number_strings(6)), datamy)
+    print("response_updated =", response_post_update.json())
+    # Проверяем, что ответ содержит статус 404
+    assert_steps.assert_response_has_status(response_post_update, 404)
+
+# Тест обновления питомца
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
+def test_put_pet():
+    # Создаем питомца
+    request = generate_json_steps.generate_json_pet_required_param()
+    response_post = requests_steps.request_post(urls.url_pet_post, request)
+    print("result=", response_post.json())
+    # Создаем JSON
+    request_put = generate_json_steps.generate_json_update_pet(str(response_post.json()["id"]))
+    # Отправляем запрос на обновление
+    response_put = requests_steps.request_put(urls.url_pet_post, request_put)
+    print("result_put=", response_put.json())
+    # Отправляем запрос на получение
+    response_get = requests_steps.request_get(urls.url_pet_get_id(str(response_post.json()['id'])))
+    # Анализируем ответ и убеждаемся, что имя изменено
+    assert_steps.assert_equals_response_values(request_put["name"], response_get.json()["name"])
+    assert_steps.assert_equals_response_values(response_put.json()["name"], response_get.json()["name"])
+
+# Негативный тест - нельзя обновить несуществующего питомца
+@pytest.mark.regress_tests
+def test_put_pet_negative():
+    # Формируем json
+    request_put = generate_json_steps.generate_json_update_pet(support_steps.generate_random_number_strings(9))
+    print(request_put)
+    # Отправляем запросом на обновление питомца, которого не создавали:
+    response_put_pet = requests_steps.request_put(urls.url_pet_post, request_put)
+    print("response_put_pet =", response_put_pet.status_code)
+    # Проверяем, что ответ содержит статус 200
+    assert_steps.assert_response_has_status(response_put_pet, 200)
+
+# Тест поиска питомца по статусу
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
+@pytest.mark.parametrize('status',
+                         [
+                             "sold",
+                             "available"
+                         ],
+                         ids=["sold", "available"]
+                         )
+def test_get_by_status(status):
+    # Создаем питомца с нужным статусом (параметр)
+    print(status)
+    request = generate_json_steps.generate_json_pet()
+    # Подменяем статус на нужный нам
+    request['status'] = status
+    # Отправляем запрос
+    response_post = requests_steps.request_post(urls.url_pet_post, request)
+    print("result=", response_post.json())
+    # Отправляем запрос на получение питомцев со статусом sold
+    response = requests_steps.request_get(urls.url_pet_get_findByStatus(status))
+    print("result_get=", response.json())
+    # Выполняем проверки полученного результата
+    assert_steps.assert_response_has_status(response, 200)
+    assert_steps.assert_equals_response_values(response.json()[0]['status'], status)
+    assert_steps.assert_response_contains_text(response.json(), (response_post.json()['name']))
+
+# Негативный тест поиска питомца по статусу
+@pytest.mark.regress_tests
+def test_get_negative_by_status():
+    # Отправляем запрос
+    response = requests_steps.request_get(
+        urls.url_pet_get_findByStatus(support_steps.generate_random_letter_strings(6)))
+    print("result_get=", response.json())
+    # Проверяем, что ответ содержит статус 200 и список питомцев пуст
+    assert_steps.assert_response_has_status(response, 200)
+    assert_steps.assert_response_contains_text(response.json(), "[]")
+
+# Тест удаления питомца
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
+def test_delete():
+    # Создаем json для питомца
+    request = generate_json_steps.generate_json_pet()
+    # Отправляем запрос на создание питомца
+    response_post = requests_steps.request_post(urls.url_pet_post, request)
+    print("result =", response_post.json())
+    # Теперь удаляем питомца, отправляем запрос
+    response_delete = requests_steps.request_delete(urls.url_pet_get_id(str(response_post.json()["id"])))
+    print("result delete =", response_delete.json())
+    # Проверяем, что ответ содержит статус 200
+    assert_steps.assert_response_has_status(response_delete, 200)
+    # Пробуем получить удаленного питомца
+    response_get = requests_steps.request_get(urls.url_pet_get_id(str(response_post.json()["id"])))
+    assert_steps.assert_equals_response_values(response_get.json()['message'], 'Pet not found')
+
+# Негативный тест удаления несуществующего питомца
+@pytest.mark.regress_tests
+def test_delete_negative():
+    # Отправляем запрос на удаление несуществующего питомца
+    response_delete = requests_steps.request_delete(urls.url_pet_get_id(support_steps.generate_random_number_strings(6)))
+    print("result delete =", response_delete)
+    # Проверяем, что ответ содержит статус 404
+    assert_steps.assert_response_has_status(response_delete, 404)
+
+# Тест загрузки файла для питомца
+@pytest.mark.smoke_tests
+@pytest.mark.regress_tests
+def test_post_pet_uploadImage():
+    # Открываем файл
+    fp = open('D:\\ApiSberTest\\files\\send.txt', 'rb')
     files = {'file': fp}
     # Формируем запрос
-    response = requests.post(urls.url_pet_post_uploadimage('2'), files=files)
+    response = requests.post(urls.url_pet_post_uploadImage('2'), files=files)
     fp.close()
     print(response.text)
     # Проверяем запрос
     response_get = requests.get(urls.url_pet_get_id('1'))
     print("response =", response_get.json())
     # Проверяем ответ
-    assert_steps.assert_id_1(response_get)
+    assert_steps.assert_equals_response_values(1, 1)
+
+# Негативный тест загрузки файла для несуществующего питомца
+@pytest.mark.regress_tests
+def test_post_pet_negative_uploadImage():
+    # Работа с файлом
+    fp = open('D:\\ApiSberTest\\files\\send.txt', 'rb')
+    files = {'file': fp}
+    # Пробуем загрузить файл для несуществующего питомца
+    response_post_image = requests_steps.request_post_image(
+        urls.url_pet_post_uploadImage(support_steps.generate_random_letter_strings(6)), files)
+    # Проверяем, что ответ содержит статус 404
+    assert_steps.assert_response_has_status(response_post_image, 404)
+    # Закрываем чтение файла
+    fp.close()
+
+# pytest test_get.py::test_get -v -s
+# pytest -m smoke_regression
