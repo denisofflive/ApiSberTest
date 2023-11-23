@@ -140,9 +140,10 @@ def test_put_pet_negative():
 @pytest.mark.parametrize('status',
                          [
                              "sold",
-                             "available"
+                             "available",
+                             "pending"
                          ],
-                         ids=["sold", "available"]
+                         ids=["sold", "available", "pending"]
                          )
 def test_get_by_status(status):
     # Создаем питомца с нужным статусом (параметр)
