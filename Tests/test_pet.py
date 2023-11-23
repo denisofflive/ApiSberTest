@@ -1,5 +1,7 @@
 import pytest
 import requests
+
+import project_root_dir
 import resources.urls as urls
 import Steps.support_steps as support_steps
 import Steps.generate_json_steps as generate_json_steps
@@ -205,31 +207,31 @@ def test_delete_negative():
 @pytest.mark.regress_tests
 def test_post_pet_uploadImage():
     # Открываем файл
-    fp = open('D:\\ApiSberTest\\files\\send.txt', 'rb')
-    files = {'file': fp}
+    files = support_steps.open_file(project_root_dir.project_root_dir() + '/files/send.txt')
     # Формируем запрос
-    response = requests.post(urls.url_pet_post_uploadImage('2'), files=files)
-    fp.close()
+    response = requests.post(urls.url_pet_post_uploadImage('2'), files)
+    # fp.close()
     print(response.text)
     # Проверяем запрос
     response_get = requests.get(urls.url_pet_get_id('1'))
     print("response =", response_get.json())
     # Проверяем ответ
     assert_steps.assert_equals_response_values(1, 1)
+    # Закрываем чтение файла
+    support_steps.close_file(files)
 
 # Негативный тест загрузки файла для несуществующего питомца
 @pytest.mark.regress_tests
 def test_post_pet_uploadImage_negative():
     # Работа с файлом
-    fp = open('D:\\ApiSberTest\\files\\send.txt', 'rb')
-    files = {'file': fp}
+    files = support_steps.open_file(project_root_dir.project_root_dir() + '/files/send.txt')
     # Пробуем загрузить файл для несуществующего питомца
     response_post_image = requests_steps.request_post_image(
         urls.url_pet_post_uploadImage(support_steps.generate_random_letter_strings(6)), files)
     # Проверяем, что ответ содержит статус 404
     assert_steps.assert_response_has_status(response_post_image, 404)
     # Закрываем чтение файла
-    fp.close()
+    support_steps.close_file(files)
 
 # pytest test_get.py::test_get -v -s
 # pytest -m smoke_regression

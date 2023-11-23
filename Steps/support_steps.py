@@ -34,3 +34,14 @@ def generate_random_phone_number_strings():
     for i in range(0, 10):
         result += str(random.randint(0, 9))
     return result
+
+def open_file(file):
+    # Открываем файл на чтение
+    fp = open(file, 'rb')
+    files = {'file': fp}
+    return files
+
+def close_file(file):
+    # Закроем файл на чтение
+    file['file'].close
+
