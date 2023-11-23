@@ -34,9 +34,3 @@ def generate_random_phone_number_strings():
     for i in range(0, 10):
         result += str(random.randint(0, 9))
     return result
-
-def uploadImage():
-    result = "+"
-    fp = open('D:\\ApiSberTest\\files\\send.txt', 'rb')
-    files = {'file': fp}
-    return result
